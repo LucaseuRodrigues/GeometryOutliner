@@ -1,4 +1,6 @@
 # from decorator import decorator
+from math import pi
+from math import cos
 
 
 class Point:
@@ -46,7 +48,7 @@ class PolygonInput():
         if long < -180 or long > 180:
             raise ValueError('error: long wrong value, please correct!')
 
-    def addPoint(self, lat, long):
+    def add_point(self, lat, long):
         self.is_completed()
         self.validate_number(lat, long)
         self.coordinate_validation(lat, long)
@@ -80,8 +82,48 @@ class Polygon:
     def __str__(self):
         return (f"These are the points received {self._points}")
 
+    def _ref_point(self):
+        lat0 = self._points[0].lat
+        lat_ref = lat0
+        long0 = self._points[0].long
+        return (lat0, long0, lat_ref)
+
+    def _lat_scale(self):
+        _, _, lat_conv = self._ref_point()
+        lat_rad = lat_conv * (pi / 180)
+        return lat_rad
+
+    def _meters_deg_value(self):
+        lat_ref = self._lat_scale()
+        meters_lat_deg = 111_380
+        meters_long_deg = 111_320 * cos(lat_ref)
+        return (meters_lat_deg, meters_long_deg)
+
+    def _coord_difference(self):
+        dcoord = []
+        points = self._points
+        lat0, long0, _ = self._ref_point()
+        for x in points:
+            lat = x.lat - lat0
+            long = x.long - long0
+            delta = (lat, long)
+            dcoord.append(delta)
+        return tuple(dcoord)
+
+    def _rad_meters_conversion(self):
+        dvalue = self._coord_difference()
+        lat_meters, long_meters = self._meters_deg_value()
+        lib = []
+        for x, y in dvalue:
+            delta_lat = x * lat_meters
+            delta_long = y * long_meters
+            delta = (delta_lat, delta_long)
+            lib.append(delta)
+        return tuple(lib)
+
     def perimeter(self):
-        pass
+        meters_list = self._rad_meters_conversion()
+        print(meters_list)
 
     def area(self):
         pass
