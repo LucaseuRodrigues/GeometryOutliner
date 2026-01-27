@@ -135,4 +135,12 @@ class Polygon:
         return total
 
     def area(self):
-        pass
+        meters_list = self._deg_meters_conversion()
+        quant = len(meters_list)
+        total = 0
+        for i in range(quant):
+            x1, y1 = meters_list[i]
+            x2, y2 = meters_list[(i + 1) % quant]
+            cross = (x1 * y2) - (y1 * x2)
+            total += cross
+        return abs(total) / 2
